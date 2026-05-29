@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediTrack Pro | Medicine Inventory & Expiry Management</title>
+  <!-- Google Fonts: Outfit and Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+  <!-- Theme Toggle & Logo Banner -->
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+        </svg>
+        <div class="brand-text">
+          <h1>MediTrack</h1>
+          <span>Pro System</span>
+        </div>
+      </div>
+      
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="dashboard">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1" />
+            <rect x="14" y="3" width="7" height="5" rx="1" />
+            <rect x="14" y="12" width="7" height="9" rx="1" />
+            <rect x="3" y="16" width="7" height="5" rx="1" />
+          </svg>
+          Dashboard
+        </button>
+        <button class="nav-item" data-tab="inventory">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          Inventory
+        </button>
+        <button class="nav-item" data-tab="storage">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+          Storage Monitor
+          <span class="badge badge-error hidden" id="storage-alert-badge">!</span>
+        </button>
+        <button class="nav-item" data-tab="waste">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/>
+          </svg>
+          Waste Analysis
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="theme-toggle" class="btn btn-secondary btn-icon">
+          <svg class="sun-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+          <span class="theme-text">Toggle Light Mode</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="topbar">
+        <div class="search-bar">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="text" id="global-search" placeholder="Quick search medicine, batch, or location...">
+        </div>
+        <div class="user-profile">
+          <div class="notification-bell" id="bell-icon">
+            <svg class="bell-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span class="bell-badge hidden" id="bell-alert-count">0</span>
+            <div class="notifications-dropdown hidden" id="notifications-menu">
+              <div class="dropdown-header">
+                <h4>System Alerts</h4>
+                <button class="btn-text" id="clear-alerts">Clear All</button>
+              </div>
+              <div class="dropdown-list" id="alerts-list">
+                <div class="empty-dropdown">No active critical alerts</div>
+              </div>
+            </div>
+          </div>
+          <div class="avatar">PH</div>
+          <div class="profile-details">
+            <span class="name">Dr. Sarah Connor</span>
+            <span class="role">Chief Pharmacist</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- TAB 1: DASHBOARD -->
+      <section id="tab-dashboard" class="tab-content active">
+        <div class="page-title">
+          <h2>Dashboard Overview</h2>
+          <p>Real-time analytics on stock levels, shelf-life, and storage viability.</p>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid">
+          <div class="metric-card glass">
+            <div class="metric-header">
+              <span class="metric-title">Total Inventory Value</span>
+              <div class="metric-icon primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+            </div>
+            <div class="metric-value" id="val-total-value">$0.00</div>
+            <div class="metric-desc" id="val-total-count">0 unique products in stock</div>
+          </div>
+
+          <div class="metric-card glass">
+            <div class="metric-header">
+              <span class="metric-title">Expired (Loss Incurred)</span>
+              <div class="metric-icon error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+            </div>
+            <div class="metric-value text-error" id="val-expired-loss">$0.00</div>
+            <div class="metric-desc" id="val-expired-count">0 batches expired (must discard)</div>
+          </div>
+
+          <div class="metric-card glass">
+            <div class="metric-header">
+              <span class="metric-title">Nearing Expiry (&lt; 30 Days)</span>
+              <div class="metric-icon warning">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+            </div>
+            <div class="metric-value text-warning" id="val-expiring-soon">0</div>
+            <div class="metric-desc" id="val-expiring-value">Value at risk: $0.00</div>
+          </div>
+
+          <div class="metric-card glass">
+            <div class="metric-header">
+              <span class="metric-title">Stock Out & Low Stock</span>
+              <div class="metric-icon info">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="23"/><line x1="12" y1="1" x2="12" y2="5"/><path d="M22 12a10 10 0 0 0-10-10M2 12a10 10 0 0 0 10 10"/></svg>
+              </div>
+            </div>
+            <div class="metric-value text-info" id="val-low-stock">0</div>
+            <div class="metric-desc" id="val-stockout-count">0 items fully out of stock</div>
+          </div>
+        </div>
+
+        <!-- Dashboard Layout Grid -->
+        <div class="dashboard-grid">
+          <!-- Critical Actions & Warnings -->
+          <div class="dashboard-card glass col-span-2">
+            <div class="card-header">
+              <h3>Action Required Alerts</h3>
+              <span class="pill pill-error" id="total-alerts-count">0 Alerts</span>
+            </div>
+            <div class="alert-box-container" id="dashboard-critical-alerts">
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-icon"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+                <p>System clean. No critical stock-outs, expiry threats, or temperature alerts.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions Pane -->
+          <div class="dashboard-card glass">
+            <div class="card-header">
+              <h3>Quick Operations</h3>
+            </div>
+            <div class="quick-actions-list">
+              <button class="btn btn-primary" onclick="openModal('add-medicine-modal')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Receive New Stock
+              </button>
+              <button class="btn btn-secondary" onclick="openModal('dispense-medicine-modal')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Dispense Stock (FEFO)
+              </button>
+              <button class="btn btn-outline" onclick="openModal('waste-medicine-modal')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Report Wastage
+              </button>
+              <button class="btn btn-accent" id="trigger-sensor-sim">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Simulate Temp Breach
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Analytics Charts -->
+          <div class="dashboard-card glass col-span-2">
+            <div class="card-header">
+              <h3>Monthly Wastage & Expiry Losses</h3>
+              <span class="card-subtitle">Financial breakdown of inventory waste reasons</span>
+            </div>
+            <div class="chart-wrapper">
+              <!-- SVG Bar/Pie Charts will render here -->
+              <div id="waste-reason-chart" class="custom-chart"></div>
+            </div>
+          </div>
+
+          <div class="dashboard-card glass">
+            <div class="card-header">
+              <h3>Expiry Excursion Profile</h3>
+              <span class="card-subtitle">Medicine shelf-life distribution</span>
+            </div>
+            <div class="chart-wrapper">
+              <div id="expiry-profile-chart" class="custom-chart"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: INVENTORY -->
+      <section id="tab-inventory" class="tab-content">
+        <div class="page-title-row">
+          <div class="page-title">
+            <h2>Medicine Inventory</h2>
+            <p>Monitor stock quantities, check batch codes, expiry dates, and shelf locations.</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('add-medicine-modal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add New Batch
+          </button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filters-container glass">
+          <div class="filter-group">
+            <label for="inv-search">Search</label>
+            <input type="text" id="inv-search" placeholder="Filter by name, active substance...">
+          </div>
+          <div class="filter-group">
+            <label for="filter-category">Category</label>
+            <select id="filter-category">
+              <option value="all">All Dosage Forms</option>
+              <option value="Tablet">Tablets</option>
+              <option value="Injection">Injections</option>
+              <option value="Syrup">Syrups</option>
+              <option value="Vaccine">Vaccines</option>
+              <option value="Ointment">Ointments</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-status">Health Status</label>
+            <select id="filter-status">
+              <option value="all">All Conditions</option>
+              <option value="safe">Adequate & Safe</option>
+              <option value="expiring">Expiring Soon</option>
+              <option value="expired">Expired</option>
+              <option value="low">Low Stock Alert</option>
+              <option value="out">Out of Stock</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filter-storage">Storage Zone</label>
+            <select id="filter-storage">
+              <option value="all">All Zones</option>
+              <option value="Ambient Cabinet">Ambient Cabinet (15-25°C)</option>
+              <option value="Refrigerated coldroom">Cold Refrigerator (2-8°C)</option>
+              <option value="Deep Freezer">Deep Freezer (-20°C)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Inventory Table Container -->
+        <div class="table-card glass">
+          <div class="table-responsive">
+            <table class="data-table" id="inventory-table">
+              <thead>
+                <tr>
+                  <th>Medicine Details</th>
+                  <th>Category</th>
+                  <th>Storage Spec & Zone</th>
+                  <th>Total Stock</th>
+                  <th>Earliest Expiry</th>
+                  <th>Status Alerts</th>
+                  <th class="actions-col">Operations</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-tbody">
+                <!-- Javascript will inject inventory rows here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: STORAGE MONITOR -->
+      <section id="tab-storage" class="tab-content">
+        <div class="page-title-row">
+          <div class="page-title">
+            <h2>Cold Chain & Environmental Tracking</h2>
+            <p>Ensure temperature and humidity specifications match medicinal requirements to avoid damage.</p>
+          </div>
+          <div class="button-group">
+            <button class="btn btn-outline" id="log-temp-check-btn" onclick="openModal('log-temp-modal')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" /><path d="M12 6v6l4 2" /></svg>
+              Manual Temp Log
+            </button>
+            <button class="btn btn-accent" id="trigger-breach-direct">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+              Simulate Environmental Outage
+            </button>
+          </div>
+        </div>
+
+        <!-- Zones Overview -->
+        <div class="storage-grid">
+          <!-- Zone 1: Ambient Cabinet -->
+          <div class="zone-card glass" id="zone-ambient">
+            <div class="zone-status-glow"></div>
+            <div class="zone-header">
+              <div>
+                <h3>Ambient Medicine Cabinet</h3>
+                <span class="zone-location">Location: Shelf Block A & B</span>
+              </div>
+              <span class="badge badge-success" id="ambient-status-badge">Normal</span>
+            </div>
+            <div class="zone-sensors">
+              <div class="sensor-readout">
+                <span class="sensor-value" id="ambient-temp">22.4°C</span>
+                <span class="sensor-label">Temperature (Target: 15°C to 25°C)</span>
+              </div>
+              <div class="sensor-readout">
+                <span class="sensor-value" id="ambient-humidity">45%</span>
+                <span class="sensor-label">Relative Humidity</span>
+              </div>
+            </div>
+            <div class="zone-items-summary">
+              <span class="items-count" id="ambient-items-count">0 items stored here</span>
+              <button class="btn-text btn-view-zone-items" data-zone="Ambient Cabinet">View items</button>
+            </div>
+          </div>
+
+          <!-- Zone 2: Cold Refrigerator -->
+          <div class="zone-card glass" id="zone-refrigerator">
+            <div class="zone-status-glow"></div>
+            <div class="zone-header">
+              <div>
+                <h3>Cold Refrigerator</h3>
+                <span class="zone-location">Location: Pharmacy Room Fridge A</span>
+              </div>
+              <span class="badge badge-success" id="fridge-status-badge">Normal</span>
+            </div>
+            <div class="zone-sensors">
+              <div class="sensor-readout">
+                <span class="sensor-value" id="fridge-temp">4.2°C</span>
+                <span class="sensor-label">Temperature (Target: 2.0°C to 8.0°C)</span>
+              </div>
+              <div class="sensor-readout">
+                <span class="sensor-value" id="fridge-humidity">55%</span>
+                <span class="sensor-label">Relative Humidity</span>
+              </div>
+            </div>
+            <div class="zone-items-summary">
+              <span class="items-count" id="fridge-items-count">0 items stored here</span>
+              <button class="btn-text btn-view-zone-items" data-zone="Refrigerated coldroom">View items</button>
+            </div>
+          </div>
+
+          <!-- Zone 3: Deep Freezer -->
+          <div class="zone-card glass" id="zone-freezer">
+            <div class="zone-status-glow"></div>
+            <div class="zone-header">
+              <div>
+                <h3>Deep Freezer</h3>
+                <span class="zone-location">Location: Laboratory Lab Freezer A</span>
+              </div>
+              <span class="badge badge-success" id="freezer-status-badge">Normal</span>
+            </div>
+            <div class="zone-sensors">
+              <div class="sensor-readout">
+                <span class="sensor-value" id="freezer-temp">-18.5°C</span>
+                <span class="sensor-label">Temperature (Target: -25.0°C to -10.0°C)</span>
+              </div>
+              <div class="sensor-readout">
+                <span class="sensor-value" id="freezer-humidity">20%</span>
+                <span class="sensor-label">Relative Humidity</span>
+              </div>
+            </div>
+            <div class="zone-items-summary">
+              <span class="items-count" id="freezer-items-count">0 items stored here</span>
+              <button class="btn-text btn-view-zone-items" data-zone="Deep Freezer">View items</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Environmental Log -->
+        <div class="dashboard-card glass" style="margin-top: 1.5rem;">
+          <div class="card-header">
+            <h3>Recent Environmental Sensor Logs</h3>
+            <button class="btn-text" id="clear-sensor-logs">Clear sensor logs</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table mini-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Storage Unit</th>
+                  <th>Temperature</th>
+                  <th>Humidity</th>
+                  <th>Status</th>
+                  <th>Recorded By</th>
+                </tr>
+              </thead>
+              <tbody id="sensor-logs-tbody">
+                <!-- Sensor logs go here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: WASTE ANALYSIS -->
+      <section id="tab-waste" class="tab-content">
+        <div class="page-title-row">
+          <div class="page-title">
+            <h2>Expiry & Disposal Waste Analysis</h2>
+            <p>Analyze how much medication was disposed of, check reasons for loss, and register disposal certificates.</p>
+          </div>
+          <button class="btn btn-outline text-error" onclick="openModal('waste-medicine-modal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-svg"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Record Waste Log
+          </button>
+        </div>
+
+        <!-- Waste Metrics -->
+        <div class="metrics-grid mini-grid">
+          <div class="metric-card glass">
+            <span class="metric-title">Total Financial Loss</span>
+            <div class="metric-value text-error" id="waste-total-loss">$0.00</div>
+          </div>
+          <div class="metric-card glass">
+            <span class="metric-title">Total Disposed Units</span>
+            <div class="metric-value" id="waste-total-units">0 units</div>
+          </div>
+          <div class="metric-card glass">
+            <span class="metric-title">Wastage Due to Expiration</span>
+            <div class="metric-value text-warning" id="waste-pct-expiry">0%</div>
+          </div>
+          <div class="metric-card glass">
+            <span class="metric-title">Wastage Due to Storage Faults</span>
+            <div class="metric-value text-info" id="waste-pct-storage">0%</div>
+          </div>
+        </div>
+
+        <!-- Waste Log Table -->
+        <div class="table-card glass" style="margin-top: 1.5rem;">
+          <div class="card-header">
+            <h3>Disposal Logs & Wastage Audit</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="waste-table">
+              <thead>
+                <tr>
+                  <th>Date Logged</th>
+                  <th>Medicine Details</th>
+                  <th>Batch ID</th>
+                  <th>Wasted Quantity</th>
+                  <th>Loss Value</th>
+                  <th>Reason for Waste</th>
+                  <th>Action Taken / Disposed By</th>
+                </tr>
+              </thead>
+              <tbody id="waste-tbody">
+                <!-- Javascript will inject waste rows here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal 1: Add Stock -->
+  <div id="add-medicine-modal" class="modal-overlay">
+    <div class="modal-card glass animate-in">
+      <div class="modal-header">
+        <h3>Receive & Record New Medicine Batch</h3>
+        <button class="modal-close" onclick="closeModal('add-medicine-modal')">&times;</button>
+      </div>
+      <form id="add-medicine-form">
+        <div class="form-grid">
+          <div class="form-group col-span-2">
+            <label for="add-name">Medicine / Product Name *</label>
+            <input type="text" id="add-name" required placeholder="e.g. Paracetamol, Insulin Glargine">
+          </div>
+          <div class="form-group">
+            <label for="add-category">Dosage Form / Category *</label>
+            <select id="add-category" required>
+              <option value="Tablet">Tablet</option>
+              <option value="Injection">Injection</option>
+              <option value="Syrup">Syrup</option>
+              <option value="Vaccine">Vaccine</option>
+              <option value="Ointment">Ointment</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="add-batch">Batch ID / Lot Number *</label>
+            <input type="text" id="add-batch" required placeholder="e.g. B240901">
+          </div>
+          <div class="form-group">
+            <label for="add-qty">Received Quantity *</label>
+            <input type="number" id="add-qty" required min="1" placeholder="e.g. 500">
+          </div>
+          <div class="form-group">
+            <label for="add-unit">Unit Type *</label>
+            <input type="text" id="add-unit" required placeholder="e.g. tablets, vials, bottles">
+          </div>
+          <div class="form-group">
+            <label for="add-unit-price">Unit Cost Price ($) *</label>
+            <input type="number" id="add-unit-price" required step="0.01" min="0.01" placeholder="e.g. 0.15">
+          </div>
+          <div class="form-group">
+            <label for="add-reorder">Low Stock Alert Level *</label>
+            <input type="number" id="add-reorder" required min="1" placeholder="e.g. 100">
+          </div>
+          <div class="form-group">
+            <label for="add-expiry">Expiry Date *</label>
+            <input type="date" id="add-expiry" required>
+          </div>
+          <div class="form-group">
+            <label for="add-storage">Storage Condition Zone *</label>
+            <select id="add-storage" required>
+              <option value="Ambient Cabinet">Ambient Cabinet (15-25°C)</option>
+              <option value="Refrigerated coldroom">Cold Refrigerator (2-8°C)</option>
+              <option value="Deep Freezer">Deep Freezer (-20°C)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('add-medicine-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save to Inventory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Dispense Stock (FEFO) -->
+  <div id="dispense-medicine-modal" class="modal-overlay">
+    <div class="modal-card glass animate-in">
+      <div class="modal-header">
+        <h3>Dispense Medicine (FEFO Recommended)</h3>
+        <button class="modal-close" onclick="closeModal('dispense-medicine-modal')">&times;</button>
+      </div>
+      <form id="dispense-medicine-form">
+        <div class="form-group">
+          <label for="dispense-product-select">Select Medicine *</label>
+          <select id="dispense-product-select" required>
+            <option value="">-- Choose Medicine --</option>
+            <!-- Injected by JavaScript -->
+          </select>
+        </div>
+
+        <!-- FEFO Recommendation Box -->
+        <div class="fefo-recommendation-box hidden" id="fefo-box">
+          <div class="fefo-header">
+            <span class="badge badge-accent">FEFO Recommendation</span>
+            <span class="recommend-title">System Auto-Selected Batch:</span>
+          </div>
+          <div class="fefo-body">
+            <div class="fefo-detail">
+              <span class="fefo-label">Batch Code:</span>
+              <span class="fefo-value" id="fefo-batch-code">-</span>
+            </div>
+            <div class="fefo-detail">
+              <span class="fefo-label">Expiry Date:</span>
+              <span class="fefo-value text-warning" id="fefo-expiry-date">-</span>
+            </div>
+            <div class="fefo-detail">
+              <span class="fefo-label">Stock Available:</span>
+              <span class="fefo-value" id="fefo-available-qty">-</span>
+            </div>
+            <div class="fefo-detail">
+              <span class="fefo-label">Storage Zone:</span>
+              <span class="fefo-value" id="fefo-storage-zone">-</span>
+            </div>
+          </div>
+          <div class="fefo-footer">
+            <p>ℹ️ Dispensing this batch helps prevent drug expiration losses. Overrides are discouraged.</p>
+          </div>
+        </div>
+
+        <div class="form-grid" style="margin-top: 1rem;">
+          <div class="form-group">
+            <label for="dispense-qty">Quantity to Dispense *</label>
+            <input type="number" id="dispense-qty" required min="1" placeholder="e.g. 50">
+          </div>
+          <div class="form-group">
+            <label for="dispense-by">Dispensed By / Pharmacist *</label>
+            <input type="text" id="dispense-by" required placeholder="e.g. Dr. Sarah Connor">
+          </div>
+        </div>
+
+        <div class="modal-footer" style="margin-top: 1.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('dispense-medicine-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Dispensation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Report Wastage -->
+  <div id="waste-medicine-modal" class="modal-overlay">
+    <div class="modal-card glass animate-in">
+      <div class="modal-header">
+        <h3>Report Inventory Loss / Wastage</h3>
+        <button class="modal-close" onclick="closeModal('waste-medicine-modal')">&times;</button>
+      </div>
+      <form id="waste-medicine-form">
+        <div class="form-group">
+          <label for="waste-product-select">Select Medicine *</label>
+          <select id="waste-product-select" required>
+            <option value="">-- Choose Medicine --</option>
+            <!-- JavaScript injected -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="waste-batch-select">Select Batch Number *</label>
+          <select id="waste-batch-select" required disabled>
+            <option value="">-- Choose Batch first --</option>
+            <!-- JavaScript injected -->
+          </select>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="waste-qty">Wasted Quantity *</label>
+            <input type="number" id="waste-qty" required min="1" placeholder="e.g. 10">
+            <span class="input-helper" id="waste-available-info">Select batch to see stock limit</span>
+          </div>
+          <div class="form-group">
+            <label for="waste-reason">Reason for Disposal *</label>
+            <select id="waste-reason" required>
+              <option value="Expired">Product Expired</option>
+              <option value="Temperature Excursion">Temperature Breach / Storage Failure</option>
+              <option value="Physical Damage">Physical / Moisture Damage</option>
+              <option value="Dispensing Error">Dispensing Error / Contamination</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 0.5rem;">
+          <label for="waste-action">Disposal Action Taken *</label>
+          <input type="text" id="waste-action" required placeholder="e.g. incinerated according to biohazard rules">
+        </div>
+
+        <div class="modal-footer" style="margin-top: 1.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('waste-medicine-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-error">Register Wastage Loss</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Manual Temperature Log -->
+  <div id="log-temp-modal" class="modal-overlay">
+    <div class="modal-card glass animate-in">
+      <div class="modal-header">
+        <h3>Log Environmental Temperature Check</h3>
+        <button class="modal-close" onclick="closeModal('log-temp-modal')">&times;</button>
+      </div>
+      <form id="log-temp-form">
+        <div class="form-group">
+          <label for="log-temp-zone">Storage Zone Unit *</label>
+          <select id="log-temp-zone" required>
+            <option value="Ambient Cabinet">Ambient Cabinet (Shelf Block A/B)</option>
+            <option value="Refrigerated coldroom">Cold Refrigerator (Pharmacy Room Fridge A)</option>
+            <option value="Deep Freezer">Deep Freezer (Laboratory Lab Freezer A)</option>
+          </select>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="log-temp-val">Temperature Reading (°C) *</label>
+            <input type="number" id="log-temp-val" step="0.1" required placeholder="e.g. 4.2">
+          </div>
+          <div class="form-group">
+            <label for="log-humidity-val">Humidity Reading (%)</label>
+            <input type="number" id="log-humidity-val" min="0" max="100" placeholder="e.g. 50">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="log-temp-operator">Logged By / Operator *</label>
+          <input type="text" id="log-temp-operator" required placeholder="e.g. Tech Jane Doe">
+        </div>
+        <div class="modal-footer" style="margin-top: 1.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('log-temp-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Log Verification Check</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 5: View Zone Items -->
+  <div id="zone-items-modal" class="modal-overlay">
+    <div class="modal-card glass animate-in" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 id="zone-items-title">Medicines Stored in Zone</h3>
+        <button class="modal-close" onclick="closeModal('zone-items-modal')">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 1rem 0;">
+        <div class="table-responsive" style="max-height: 350px;">
+          <table class="data-table mini-table">
+            <thead>
+              <tr>
+                <th>Medicine</th>
+                <th>Batch</th>
+                <th>Quantity</th>
+                <th>Expiry Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="zone-items-tbody">
+              <!-- JS injected -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('zone-items-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
